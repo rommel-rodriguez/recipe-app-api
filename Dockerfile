@@ -2,6 +2,7 @@
 FROM python:3.9-slim-bullseye
 LABEL maintainer="to-be-defined"
 
+ARG DEV=false
 RUN apt-get update &&  apt-get upgrade -y
 
 ENV PYTHONUNBUFFERED 1
@@ -9,6 +10,7 @@ ENV PYTHONUNBUFFERED 1
 RUN adduser --disabled-password --no-create-home django-user
 
 COPY ./requirements.txt /tmp/requirements.txt
+COPY ./requirements.dev.txt /tmp/requirements.dev.txt
 # COPY ./app /app
 # WORKDIR /app
 EXPOSE 8000
@@ -24,6 +26,11 @@ EXPOSE 8000
 RUN python -m venv /py && \
     /py/bin/pip install --upgrade pip && \
     /py/bin/pip install -r /tmp/requirements.txt
+
+
+RUN if [ $DEV = "true" ]; \
+        then /py/bin/pip install -r /tmp/requirements.dev.txt; \
+    fi
 
 RUN rm -rf /tmp
 
