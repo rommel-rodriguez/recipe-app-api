@@ -2,11 +2,6 @@ import os
 
 from django.core.management.utils import get_random_secret_key
 
-DB_HOST = ''
-DB_NAME = ''
-DB_USER = ''
-DB_PASS = ''
-
 
 def is_production_environment():
     """ Checks for the ENV enviroment variable and checks whether this is a
@@ -62,3 +57,39 @@ def get_django_secret_key():
         return secret_key
 
     return get_random_secret_key()
+
+
+def get_db_host():
+    """ Retrieves the database's hostname """
+    # TODO: Consider storiing the names of these
+    # environment variables, inside constants
+    # at the top of the script file.
+    host = os.environ.get('DB_HOST')
+    return host
+
+
+def get_db_name():
+    """ Retrieves the database's name """
+    # TODO: Consider storiing the names of these
+    # environment variables, inside constants
+    # at the top of the script file.
+    host = os.environ.get('DB_NAME')
+    return host
+
+
+def get_db_user():
+    """ Retrieves the database's user """
+    # TODO: Consider storiing the names of these
+    # environment variables, inside constants
+    # at the top of the script file.
+    password = os.environ.get('DB_USER')
+    return password 
+
+
+def get_db_pass():
+    """ Retrieves the database's password """
+    # TODO: Consider storiing the names of these
+    # environment variables, inside constants
+    # at the top of the script file.
+    password = os.environ.get('DB_PASS')
+    return password 
