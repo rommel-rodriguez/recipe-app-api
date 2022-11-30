@@ -24,8 +24,12 @@ EXPOSE 8000
 #         django-user
 
 RUN python -m venv /py && \
-    /py/bin/pip install --upgrade pip && \
-    /py/bin/pip install -r /tmp/requirements.txt
+    /py/bin/pip install --upgrade pip
+
+RUN apt-get install -y build-essential python3-dev libpq-dev
+RUN apt-get -y clean && apt-get -y autoremove 
+
+RUN /py/bin/pip install -r /tmp/requirements.txt
 
 
 RUN if [ $DEV = "true" ]; \
