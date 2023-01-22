@@ -28,7 +28,7 @@ class AdminSiteTests(TestCase):
     def test_users_list(self):
         """ Test that users are listen on page """
         url = reverse('admin:core_user_changelist')
-        res =- self.client.get(url)
+        res = self.client.get(url)
 
 
         self.assertContains(res, self.user.name)
