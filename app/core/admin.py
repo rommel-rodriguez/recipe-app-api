@@ -47,3 +47,4 @@ class UserAdmin(BaseUserAdmin):
 # NOTE: If the second argument is not given, Django uses the default
 # configuration.
 admin.site.register(models.User, UserAdmin)
+admin.site.register(models.Recipe)
