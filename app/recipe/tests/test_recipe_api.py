@@ -229,3 +229,63 @@ class PrivateRecipeApiTests(TestCase):
         self.assertEqual(recipe.tags.count(), 2)
 
         self.assertIn(tag_indian, recipe.tags.all())
+
+    def test_create_tag_on_update(self):
+        """Test creating a tag when updating a recipe"""
+        recipe = create_recipe(user=self.user)
+        tag_name = "Lunch"
+        payload = {
+            "tags": [
+                {
+                    "name": tag_name,
+                }
+            ]
+        }
+        url = detail_url(recipe.id)
+        res = self.client.patch(url, payload, format="json")
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        # recipe.refresh_from_db()
+
+        new_tag = Tag.objects.get(user=self.user, name=tag_name)
+
+        # NOTE: We do NOT need to call refresh_from_db here. This is because
+        # in this case, much like in Spring Boot, by default, the nested tag objects
+        # are loaded "Lazily" rather than "Eagerly".
+        self.assertIn(new_tag, recipe.tags.all())
+
+    def test_recipe_assign_tag(self):
+        """Test assigning an existing tag when updating a recipe"""
+        first_tag_name = "Breakfast"
+        second_tag_name = "Lunch"
+        tag_breakfast = Tag.objects.create(user=self.user, name=first_tag_name)
+        recipe = create_recipe(user=self.user)
+        recipe.tags.add(first_tag_name)  # Is this immediate?
+
+        tag_lunch = Tag.objects.create(user=self.user, name=second_tag_name)
+        payload = {"tags": [{"name": second_tag_name}]}
+
+        url = detail_url(recipe.id)
+        res = self.client.patch(url, payload, format="json")
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn(tag_lunch, recipe.tags.all())
+        self.assertNotIn(tag_breakfast, recipe.tags.all())
+
+    def test_clear_recipe_tags(self):
+        """Test clearing a recipe tags"""
+        first_tag_name = "Breakfast"
+        second_tag_name = "Lunch"
+        tag_breakfast = Tag.objects.create(user=self.user, name=first_tag_name)
+        tag_lunch = Tag.objects.create(user=self.user, name=second_tag_name)
+
+        recipe = create_recipe(user=self.user)
+        recipe.tags.add(first_tag_name)  # Is this immediate?
+        recipe.tags.add(second_tag_name)  # Is this immediate?
+        url = detail_url(recipe.id)
+        payload = {"tags": []}
+        res = self.client.patch(url, payload, format="json")
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(recipe.tags.count(), 0)
