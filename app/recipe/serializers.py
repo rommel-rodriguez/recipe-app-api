@@ -46,6 +46,13 @@ class RecipeSerializer(serializers.ModelSerializer):
         # Does this function only have to return the object to be created?
         return recipe
 
+    def update(self, instance, validated_data):
+        """Update recipe."""
+        tags = validated_data.pop("tags", None)
+
+        if tags is not None:
+            instance.tags.clear()
+
 
 class RecipeDetailSerializer(RecipeSerializer):
     """Serializer for recipe detail view"""

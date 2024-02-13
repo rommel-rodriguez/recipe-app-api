@@ -261,7 +261,7 @@ class PrivateRecipeApiTests(TestCase):
         second_tag_name = "Lunch"
         tag_breakfast = Tag.objects.create(user=self.user, name=first_tag_name)
         recipe = create_recipe(user=self.user)
-        recipe.tags.add(first_tag_name)  # Is this immediate?
+        recipe.tags.add(tag_breakfast)  # Is this immediate?
 
         tag_lunch = Tag.objects.create(user=self.user, name=second_tag_name)
         payload = {"tags": [{"name": second_tag_name}]}
@@ -281,8 +281,8 @@ class PrivateRecipeApiTests(TestCase):
         tag_lunch = Tag.objects.create(user=self.user, name=second_tag_name)
 
         recipe = create_recipe(user=self.user)
-        recipe.tags.add(first_tag_name)  # Is this immediate?
-        recipe.tags.add(second_tag_name)  # Is this immediate?
+        recipe.tags.add(tag_breakfast)  # Is this immediate?
+        recipe.tags.add(tag_lunch)  # Is this immediate?
         url = detail_url(recipe.id)
         payload = {"tags": []}
         res = self.client.patch(url, payload, format="json")
