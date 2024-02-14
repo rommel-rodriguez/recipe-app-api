@@ -82,3 +82,16 @@ class ModelTests(TestCase):
         )
 
         self.assertEqual(str(tag), tag.name)
+
+    def test_create_ingredient(self):
+        """Test creating an ingredient."""
+        user = create_user()
+        ingredient_name = "Selenium"
+        ingredient = models.Ingredient.objects.create(user=user, name=ingredient_name)
+        stored_ingredients = models.Ingredient.objects.filter(user=user)
+
+        self.assertEqual(str(ingredient), ingredient.name)
+        self.assertEqual(ingredient.name, ingredient_name)
+        # self.assertTrue(stored_ingredients.exists())
+        # self.assertEqual(stored_ingredients.count(), 1)
+        # self.assertEqual(stored_ingredients[0]["name"], ingredient_name)
