@@ -40,6 +40,15 @@ class PrivateIngredientApiTests(TestCase):
         self.user = create_user()
         self.client.force_authenticate(self.user)
 
+    # def test_created_ingredient_for_user(self):
+    #     """Test that an ingredient is bound to the authenticated user."""
+    #     payload = {"name": "Chicha"}
+    #     res = self.client.post(INGREDIENTS_URL, payload)
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     ingredients = Ingredient.objects.filter(user=self.user)
+    #     self.assertTrue(ingredients.exists())
+    #     self.assertEqual(ingredients.count(), 1)
+
     def test_user_can_list_ingredients(self):
         """Test the user can retrieve all ingredients he registered"""
         Ingredient.objects.create(user=self.user, name="Celery")

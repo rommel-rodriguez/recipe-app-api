@@ -28,10 +28,11 @@ class RecipeSerializer(serializers.ModelSerializer):
     """Serializer for recipes"""
 
     tags = TagSerializer(many=True, required=False)
+    ingredients = IngredientSerializer(many=True, required=False)
 
     class Meta:
         model = Recipe
-        fields = ["id", "title", "time_minutes", "price", "link", "tags"]
+        fields = ["id", "title", "time_minutes", "price", "link", "tags", "ingredients"]
         read_only_fields = ["id"]
 
     def _get_or_create_tags(self, tags: dict, recipe: Recipe):
@@ -68,8 +69,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         auth_user = self.context["request"].user
 
         for ingredient in ingredients:
-            # NOTE: I assume, that the tag_obj is a more complete object that differs
-            # from tag, in that it, also, includes the id of the created tag
             ingr_obj, created = Ingredient.objects.get_or_create(
                 user=auth_user,
                 **ingredient,

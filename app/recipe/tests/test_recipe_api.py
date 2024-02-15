@@ -4,7 +4,7 @@ Tests for recipe APIs
 
 from decimal import Decimal
 
-from core.models import Recipe, Tag
+from core.models import Ingredient, Recipe, Tag
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
@@ -289,3 +289,73 @@ class PrivateRecipeApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(recipe.tags.count(), 0)
+
+    def create_recipe_with_new_ingredients(self):
+        """Test creating a recipe with brand new ingredients"""
+        # recipe = create_recipe(user=self.user)
+        payload = {
+            "title": "Recipe with brand new ingredients",
+            "time_minutes": 30,
+            "price": Decimal("7.00"),
+            "description": "Brand new ingredients description",
+            "link": "http://example.com/new_ingre_recipe.pdf",
+            "ingredients": [{"name": "Tomato"}, {"name": "Potato"}],
+        }
+
+        res = self.client.post(RECIPES_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+        recipes = Recipe.objects.filter(user=self.user)
+
+        self.assertEqual(len(recipes), 1)
+
+        recipe = recipes[0]
+        self.assertEqual(recipe.ingredients.count(), 2)
+
+        for ingredient in payload["ingredients"]:
+            exists = recipe.ingredients.filter(name=ingredient["name"]).exists()
+            self.assertTrue(exists)
+
+    def create_recipe_with_existing_ingredients(self):
+        """Test creating a recipe with already existing ingredients"""
+
+        garlic = Ingredient.objects.create(name="Garlic", user=self.user)
+        # potato = Ingredient.objects.create(name="Sweet Potato")
+        payload = {
+            "title": "Recipe with brand new ingredients",
+            "time_minutes": 30,
+            "price": Decimal("7.00"),
+            "description": "Brand new ingredients description",
+            "link": "http://example.com/new_ingre_recipe.pdf",
+            "ingredients": [{"name": "Garlic"}, {"name": "Sweet Potato"}],
+        }
+
+        res = self.client.get(RECIPES_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        recipes = Recipe.objects.filter(user=self.user)
+        self.assertEqual(recipes.count(), 1)
+        recipe = recipes[0]
+        self.assertEqual(recipe.ingredients.count(), 2)
+        self.assertIn(garlic, recipe.ingredients.all())
+
+    def test_create_ingredient_on_update(self):
+        """Test creating an ingredient while updating the recipe"""
+        recipe = create_recipe(user=self.user)
+        payload = {
+            "ingredients": [
+                {"name": "Garlic"},
+            ],
+        }
+
+        res = self.client.patch(detail_url(recipe.id), payload, format="json")
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        new_ingredient = Ingredient.objects.get(user=self.user)
+
+        # NOTE: We do NOT need to call refresh_from_db here. This is because
+        # in this case, much like in Spring Boot, by default, the nested tag objects
+        # are loaded "Lazily" rather than "Eagerly".
+        self.assertIn(new_ingredient, recipe.ingredients.all())
