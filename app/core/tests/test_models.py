@@ -92,6 +92,3 @@ class ModelTests(TestCase):
 
         self.assertEqual(str(ingredient), ingredient.name)
         self.assertEqual(ingredient.name, ingredient_name)
-        # self.assertTrue(stored_ingredients.exists())
-        # self.assertEqual(stored_ingredients.count(), 1)
-        # self.assertEqual(stored_ingredients[0]["name"], ingredient_name)
