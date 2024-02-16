@@ -45,6 +45,12 @@ ENV PYTHONUNBUFFERED 1
 
 RUN adduser --disabled-password --no-create-home django-user
 
+# Create directoy for static and media files
+RUN mkdir -p /vol/web/static && \
+    mkdir -p /vol/web/media && \
+    chown -R django-user:django-user /vol && \
+    chmod -R 755 /vol
+
 COPY ./requirements.txt /tmp/requirements.txt
 COPY ./requirements.dev.txt /tmp/requirements.dev.txt
 
