@@ -274,7 +274,7 @@ class PrivateRecipeApiTests(TestCase):
         self.assertNotIn(tag_breakfast, recipe.tags.all())
 
     def test_clear_recipe_tags(self):
-        """Test clearing a recipe tags"""
+        """Test clearing a recipe's tags"""
         first_tag_name = "Breakfast"
         second_tag_name = "Lunch"
         tag_breakfast = Tag.objects.create(user=self.user, name=first_tag_name)
@@ -365,3 +365,38 @@ class PrivateRecipeApiTests(TestCase):
         # in this case, much like in Spring Boot, by default, the nested tag objects
         # are loaded "Lazily" rather than "Eagerly".
         self.assertIn(new_ingredient, recipe.ingredients.all())
+
+    def test_update_recipe_assign_ingredient(self):
+        """Test assigning an existing ingredient when updating a recipe."""
+        recipe = create_recipe(user=self.user)
+        ingredient1 = Ingredient.objects.create(name="Pepper", user=self.user)
+        ingredient2 = Ingredient.objects.create(name="Garlic", user=self.user)
+        recipe.ingredients.add(ingredient1)
+        payload = {
+            "ingredients": [
+                {"name": "Garlic"},
+            ],
+        }
+
+        res = self.client.patch(detail_url(recipe.id), payload, format="json")
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        self.assertIn(ingredient2, recipe.ingredients.all())
+        self.assertNotIn(ingredient1, recipe.ingredients.all())
+
+    def test_clear_recipe_ingredients(self):
+        """Test clearing all of a recipe's ingredients"""
+        recipe = create_recipe(user=self.user)
+        ingredient1 = Ingredient.objects.create(name="Pepper", user=self.user)
+        ingredient2 = Ingredient.objects.create(name="Garlic", user=self.user)
+        recipe.ingredients.add(ingredient1)
+        payload = {
+            "ingredients": [],
+        }
+
+        res = self.client.patch(detail_url(recipe.id), payload, format="json")
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(recipe.ingredients.count(), 0)
