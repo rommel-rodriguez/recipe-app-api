@@ -3,6 +3,12 @@ Views for the recipe APIs
 """
 
 from core.models import Ingredient, Recipe, Tag
+from drf_spectacular.utils import (
+    OpenApiParameter,
+    OpenApiTypes,
+    extend_schema,
+    extend_schema_view,
+)
 from recipe import serializers
 from rest_framework import mixins, status, viewsets
 from rest_framework.authentication import TokenAuthentication
@@ -20,11 +26,26 @@ class RecipeViewSet(viewsets.ModelViewSet):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
+    def _params_to_ints(self, qs: str):
+        """Convert a list of strings to ints."""
+        return [int(str_id) for str_id in qs.split(",")]
+
     def get_queryset(self):
         """Retrieve recipes for authenticated user"""
         # NOTE: This method needed to be overridden, in order
         # to filter the recipes by the authenticated user
-        return self.queryset.filter(user=self.request.user).order_by("-id")
+        # user = self.request.user
+        tags = self.request.query_params.get("tags")
+        ingredients = self.request.query_params.get("ingredients")
+        queryset = self.queryset
+        if tags:
+            tag_ids = self._params_to_ints(tags)
+            queryset = queryset.filter(tags__id__in=tag_ids)
+        if ingredients:
+            ingr_ids = self._params_to_ints(ingredients)
+            queryset = queryset.filter(ingredients__id__in=ingr_ids)
+
+        return queryset.filter(user=self.request.user).order_by("-id").distinct()
 
     def get_serializer_class(self):
         """Return the serializer class for request"""
