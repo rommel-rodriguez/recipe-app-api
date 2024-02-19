@@ -41,6 +41,10 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install \
     zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
+
+# uWSGI requirement
+# RUN DEBIAN_FRONTEND=noninteractive apt-get -y install linux-headers-$(uname -r)
+
 ENV PYTHONUNBUFFERED 1
 
 RUN adduser --disabled-password --no-create-home django-user
@@ -51,8 +55,13 @@ RUN mkdir -p /vol/web/static && \
     chown -R django-user:django-user /vol && \
     chmod -R 755 /vol
 
+
 COPY ./requirements.txt /tmp/requirements.txt
 COPY ./requirements.dev.txt /tmp/requirements.dev.txt
+COPY ./scripts /scripts
+
+# Enable execute rights on script directory
+RUN chmod -R +x /scripts
 
 EXPOSE 8000
 
@@ -76,3 +85,5 @@ COPY ./app /app
 WORKDIR /app
 
 USER django-user
+
+CMD ["run.sh"]
