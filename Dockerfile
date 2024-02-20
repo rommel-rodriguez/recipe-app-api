@@ -79,7 +79,7 @@ RUN if [ $DEV = "true" ]; \
 
 RUN rm -rf /tmp
 
-ENV PATH="/py/bin:$PATH"
+ENV PATH="/scripts:/py/bin:$PATH"
 
 COPY ./app /app
 WORKDIR /app
